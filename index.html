@@ -4,25 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <title>Riki Code Editor | Pro Mobile IDE by Nitai Studio</title>
-    <meta name="description" content="Professional, colorful, and offline IDE for Android, iOS & Windows. Developed by Nitai Studio. Made in India 🇮🇳">
+    <title>Riki Code Editor | Nitai Studio</title>
 
-    <!-- PWA & IOS Support -->
+    <!-- PWA & IOS META (CRITICAL) -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
     <meta name="theme-color" content="#020617">
-
-    <!-- Web Manifest -->
-    <link rel="manifest" href='data:application/json,{"name":"Riki Code Editor","short_name":"Riki Editor","start_url":".","display":"standalone","background_color":"#020617","theme_color":"#020617","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1005/1005141.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
+    
+    <!-- Web Manifest for PWA Installation -->
+    <link rel="manifest" href='data:application/json,{"name":"Riki Code Editor","short_name":"Riki Editor","start_url":"index.html","display":"standalone","background_color":"#020617","theme_color":"#020617","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1005/1005141.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
     <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- CodeMirror Assets (Essential for Colors & Highlighting) -->
+    <!-- CodeMirror (Colorful Syntax Highlighting Assets) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -42,10 +40,10 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body, html { margin: 0; padding: 0; height: 100%; background-color: var(--bg-deep); color: var(--text-main); font-family: var(--font-ui); overflow: hidden; display: flex; flex-direction: column; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg-deep); color: var(--text-main); font-family: var(--font-ui); overflow: hidden; display: flex; flex-direction: column; }
 
-        /* --- SPLASH SCREEN --- */
-        #splash { position: fixed; inset: 0; z-index: 10000; background: radial-gradient(circle at center, #0f172a, #020617); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.8s ease-in-out; }
+        /* SPLASH SCREEN */
+        #splash { position: fixed; inset: 0; z-index: 10000; background: radial-gradient(circle at center, #0f172a, #020617); display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .logo-box { width: 90px; height: 90px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3); animation: bounce 2s infinite ease-in-out; }
         .india-flag { margin-top: 20px; font-size: 2rem; animation: wave 2s infinite linear; }
         .branding { position: absolute; bottom: 40px; text-align: center; }
@@ -55,7 +53,7 @@
         @keyframes wave { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-        /* HEADER */
+        /* UI ELEMENTS */
         header { padding: calc(10px + var(--safe-top)) 20px 10px; display: flex; justify-content: space-between; align-items: center; }
         .brand-title h1 { margin: 0; font-size: 1.1rem; font-weight: 700; }
         .brand-title span { font-size: 0.65rem; color: var(--primary); font-weight: 800; text-transform: uppercase; }
@@ -63,33 +61,24 @@
         .btn-group { display: flex; gap: 8px; }
         .action-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.08); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* TABS */
-        .tab-bar { display: flex; padding: 4px 16px 0; gap: 6px; background: var(--bg-deep); overflow-x: auto; scrollbar-width: none; }
+        .tab-bar { display: flex; padding: 4px 16px 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
         .tab-bar::-webkit-scrollbar { display: none; }
         .tab { padding: 10px 16px; background: var(--bg-surface); border-radius: 12px 12px 0 0; font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.05); }
         .tab.active { background: var(--bg-elevated); color: white; border-top: 2.5px solid var(--primary); }
 
-        /* TOOLBAR */
         .toolbar { background: var(--bg-surface); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; padding: 10px; overflow-x: auto; scrollbar-width: none; }
-        .toolbar::-webkit-scrollbar { display: none; }
         .t-tool { padding: 8px 12px; background: var(--bg-elevated); border: none; color: var(--text-main); border-radius: 8px; font-size: 0.75rem; font-family: var(--font-code); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
-        .t-tool.accent { color: var(--accent); font-weight: 700; }
 
         /* EDITOR (SYNTAX HIGHLIGHTING) */
-        #editor-container { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
-        .CodeMirror { height: 100%; font-family: var(--font-code); font-size: 15px; background: transparent !important; }
-        .cm-s-material-ocean .CodeMirror-gutters { background: #0f172a; border-right: 1px solid rgba(255,255,255,0.05); }
+        #editor-shell { flex: 1; background: #0f172a; position: relative; overflow: hidden; }
+        .CodeMirror { height: 100%; font-family: var(--font-code); font-size: 15px; }
 
-        /* SEARCH BAR UI */
-        #search-box { position: absolute; top: 10px; right: 10px; z-index: 100; background: var(--bg-elevated); padding: 8px 12px; border-radius: 12px; display: none; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 1px solid var(--primary); }
-        #search-box input { background: transparent; border: none; color: white; width: 120px; font-size: 0.8rem; }
+        /* FIND BOX UI */
+        #find-box { position: absolute; top: 10px; right: 10px; z-index: 100; background: var(--bg-elevated); padding: 8px 12px; border-radius: 12px; display: none; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 1px solid var(--primary); }
+        #find-box input { background: transparent; border: none; color: white; width: 110px; font-size: 0.8rem; }
 
         /* BOTTOM NAV */
-        .bottom-nav { 
-            background: var(--bg-surface); 
-            padding: 10px 10px calc(12px + var(--safe-bottom)); 
-            display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.1); 
-        }
+        .bottom-nav { background: var(--bg-surface); padding: 10px 10px calc(12px + var(--safe-bottom)); display: flex; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.1); }
         .nav-link { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dim); flex: 1; cursor: pointer; }
         .nav-link.active { color: var(--primary); }
         .nav-link span { font-size: 0.65rem; font-weight: 600; }
@@ -100,8 +89,6 @@
         /* MODALS */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 25px; }
         .modal { background: var(--bg-surface); width: 100%; max-width: 450px; border-radius: 28px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* PREVIEW */
         #preview-overlay { position: fixed; inset: 0; background: white; z-index: 9500; display: none; flex-direction: column; }
         .p-head { background: #1e293b; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
         iframe { flex: 1; border: none; width: 100%; height: 100%; }
@@ -122,16 +109,16 @@
         </div>
     </div>
 
-    <!-- Top Header -->
+    <!-- Header -->
     <header>
         <div class="brand-title">
             <h1>Riki Editor</h1>
             <span>Nitai Studio</span>
         </div>
         <div class="btn-group">
-            <button class="action-btn" onclick="newFile()"><i data-lucide="plus" size="20"></i></button>
-            <button class="action-btn" onclick="openFile()"><i data-lucide="folder-open" size="20"></i></button>
-            <button class="action-btn" onclick="saveFile()"><i data-lucide="save" size="20"></i></button>
+            <button class="action-btn" onclick="newF()"><i data-lucide="plus"></i></button>
+            <button class="action-btn" onclick="openF()"><i data-lucide="folder-open"></i></button>
+            <button class="action-btn" onclick="saveF()"><i data-lucide="save"></i></button>
         </div>
     </header>
 
@@ -141,24 +128,24 @@
     <div class="toolbar">
         <button class="t-tool" onclick="editor.undo()"><i data-lucide="undo" size="14"></i> Undo</button>
         <button class="t-tool" onclick="editor.redo()"><i data-lucide="redo" size="14"></i> Redo</button>
-        <button class="t-tool accent" onclick="toggleSearch()"><i data-lucide="search" size="14"></i> Find</button>
-        <button class="t-tool accent" onclick="ins(' { ')">{ }</button>
-        <button class="t-tool accent" onclick="ins(' ( ')">( )</button>
-        <button class="t-tool accent" onclick="ins(' < ')">< ></button>
-        <button class="t-tool accent" onclick="ins(' ; ')">;</button>
-        <button class="t-tool accent" onclick="ins(' = ')">=</button>
+        <button class="t-tool" onclick="toggleSearch()" style="color:var(--accent); font-weight:700"><i data-lucide="search" size="14"></i> Find</button>
+        <button class="t-tool" onclick="ins(' { ')">{ }</button>
+        <button class="t-tool" onclick="ins(' ( ')">( )</button>
+        <button class="t-tool" onclick="ins(' < ')">< ></button>
+        <button class="t-tool" onclick="ins(' ; ')">;</button>
+        <button class="t-tool" onclick="ins(' = ')">=</button>
     </div>
 
-    <!-- Main Editor -->
-    <div id="editor-container">
-        <div id="search-box">
-            <input type="text" id="search-input" placeholder="Find code..." oninput="doSearch()">
+    <!-- Editor -->
+    <div id="editor-shell">
+        <div id="find-box">
+            <input type="text" id="find-input" placeholder="Find..." oninput="doSearch()">
             <i data-lucide="x" size="16" onclick="toggleSearch()" style="cursor:pointer"></i>
         </div>
         <div id="editor-view" style="height: 100%;"></div>
     </div>
 
-    <!-- Bottom Navigation -->
+    <!-- Navigation -->
     <nav class="bottom-nav">
         <div class="nav-link active" onclick="closeModals()">
             <i data-lucide="terminal"></i><span>Editor</span>
@@ -187,6 +174,7 @@
             <div style="display:grid; gap:10px">
                 <a href="https://buymeacoffee.com/nitaigrp00a" target="_blank"><img src="https://img.shields.io/badge/Donate-Coffee-yellow?style=for-the-badge&logo=buy-me-a-coffee" width="100%"></a>
                 <a href="https://ko-fi.com/nitaisarkar" target="_blank"><img src="https://img.shields.io/badge/Donate-Ko--fi-red?style=for-the-badge&logo=ko-fi" width="100%"></a>
+                <a href="https://www.patreon.com/cw/NitaiStudio" target="_blank"><img src="https://img.shields.io/badge/Patreon-Support-orange?style=for-the-badge&logo=patreon" width="100%"></a>
             </div>
             <p style="text-align:center; font-size:0.75rem; color:var(--text-dim); margin-top:15px">Email: nitai.grp00@gmail.com</p>
         </div>
@@ -196,12 +184,12 @@
     <div class="overlay" id="privacy-modal">
         <div class="modal">
             <h3>Privacy Policy</h3>
-            <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.6">Riki Editor is 100% Offline. Your code is never sent to any server. All data stays on your local device storage.</p>
+            <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.6">Riki Editor is 100% Offline. Your code never leaves your device. We respect your privacy.</p>
             <button class="t-tool" style="width:100%; justify-content:center; padding:12px; margin-top:15px" onclick="closeModals()">Close</button>
         </div>
     </div>
 
-    <!-- Live Preview -->
+    <!-- Preview -->
     <div id="preview-overlay">
         <div class="p-head">
             <span><i data-lucide="eye" size="18"></i> Live Preview</span>
@@ -211,45 +199,37 @@
     </div>
 
     <div id="toast">Saved!</div>
-    <input type="file" id="f-pick" style="display:none" onchange="readF(event)">
+    <input type="file" id="f-pick" style="display:none" onchange="handleFile(event)">
 
     <script>
-        let editor, searchCursor;
-        let files = JSON.parse(localStorage.getItem('riki_p_files')) || [
-            { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { background: #020617; color: #6366f1; text-align: center; padding-top: 50px; font-family: sans-serif; }\n    h1 { font-size: 3rem; text-shadow: 0 0 20px rgba(99,102,241,0.5); }\n  </style>\n</head>\n<body>\n  <h1>Riki Editor Pro</h1>\n  <p>Write • Edit • Build</p>\n</body>\n</html>' }
+        let editor;
+        let files = JSON.parse(localStorage.getItem('riki_final_v1')) || [
+            { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { background: #020617; color: #6366f1; text-align: center; padding-top: 50px; font-family: sans-serif; }\n    h1 { font-size: 2.5rem; text-shadow: 0 0 15px rgba(99,102,241,0.5); }\n  </style>\n</head>\n<body>\n  <h1>Riki Editor Pro</h1>\n  <p>Write • Edit • Build</p>\n</body>\n</html>' }
         ];
         let activeIdx = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-
-            // Initialize Editor with Highlighting
+            
+            // Editor Initialization
             editor = CodeMirror(document.getElementById('editor-view'), {
-                lineNumbers: true,
-                theme: 'material-ocean',
-                mode: 'htmlmixed',
-                autoCloseBrackets: true,
-                tabSize: 4,
-                indentUnit: 4,
-                lineWrapping: true,
-                viewportMargin: Infinity
+                lineNumbers: true, theme: 'material-ocean', mode: 'htmlmixed',
+                autoCloseBrackets: true, tabSize: 4, lineWrapping: true
             });
 
             loadTabs();
 
             editor.on('change', () => {
                 files[activeIdx].content = editor.getValue();
-                localStorage.setItem('riki_p_files', JSON.stringify(files));
+                localStorage.setItem('riki_final_v1', JSON.stringify(files));
             });
 
-            setTimeout(() => {
-                document.getElementById('splash').style.transform = 'translateY(-100%)';
-            }, 2500);
+            // Splash Removal
+            setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 2500);
         });
 
         function loadTabs() {
-            const bar = document.getElementById('tab-list');
-            bar.innerHTML = '';
+            const bar = document.getElementById('tab-list'); bar.innerHTML = '';
             files.forEach((f, i) => {
                 const t = document.createElement('div');
                 t.className = `tab ${i === activeIdx ? 'active' : ''}`;
@@ -257,62 +237,45 @@
                 t.onclick = () => { activeIdx = i; loadTabs(); };
                 bar.appendChild(t);
             });
-            lucide.createIcons();
-            editor.setValue(files[activeIdx].content);
-            setMode(files[activeIdx].name);
-        }
-
-        function setMode(n) {
-            const ext = n.split('.').pop();
+            lucide.createIcons(); editor.setValue(files[activeIdx].content);
+            const ext = files[activeIdx].name.split('.').pop();
             const map = { js: 'javascript', html: 'htmlmixed', css: 'css' };
             editor.setOption('mode', map[ext] || 'text/plain');
         }
 
         function toggleSearch() {
-            const box = document.getElementById('search-box');
-            box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-            if(box.style.display === 'flex') document.getElementById('search-input').focus();
+            const b = document.getElementById('find-box');
+            b.style.display = b.style.display === 'flex' ? 'none' : 'flex';
+            if(b.style.display === 'flex') document.getElementById('find-input').focus();
         }
 
         function doSearch() {
-            const query = document.getElementById('search-input').value;
-            if(!query) return;
-            const cursor = editor.getSearchCursor(query);
-            if(cursor.findNext()) {
-                editor.setSelection(cursor.from(), cursor.to());
-                editor.scrollIntoView({from: cursor.from(), to: cursor.to()}, 20);
+            const q = document.getElementById('find-input').value;
+            if(!q) return;
+            const c = editor.getSearchCursor(q);
+            if(c.findNext()) {
+                editor.setSelection(c.from(), c.to());
+                editor.scrollIntoView({from: c.from(), to: c.to()}, 20);
             }
         }
 
-        function newFile() {
-            const n = prompt("File name:", "index.html");
-            if(n) { files.push({name: n, content: ''}); activeIdx = files.length - 1; loadTabs(); }
-        }
-
-        function openFile() { document.getElementById('f-pick').click(); }
-        function readF(e) {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = (ev) => {
-                files.push({ name: f.name, content: ev.target.result });
-                activeIdx = files.length - 1; loadTabs();
-            };
+        function newF() { const n = prompt("File name:", "index.html"); if(n) { files.push({name: n, content: ''}); activeIdx = files.length - 1; loadTabs(); } }
+        function openF() { document.getElementById('f-pick').click(); }
+        function handleFile(e) {
+            const f = e.target.files[0]; const r = new FileReader();
+            r.onload = (ev) => { files.push({ name: f.name, content: ev.target.result }); activeIdx = files.length - 1; loadTabs(); };
             r.readAsText(f);
         }
 
-        function saveFile() {
+        function saveF() {
             const b = new Blob([editor.getValue()], {type:'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(b); a.download = files[activeIdx].name; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = files[activeIdx].name; a.click();
             showT("File Downloaded!");
         }
 
         function runPreview() {
-            const overlay = document.getElementById('preview-overlay');
-            const frame = document.getElementById('p-frame');
-            overlay.style.display = 'flex';
-            const doc = frame.contentWindow.document;
-            doc.open(); doc.write(editor.getValue()); doc.close();
+            const o = document.getElementById('preview-overlay'); const f = document.getElementById('p-frame');
+            o.style.display = 'flex'; const d = f.contentWindow.document; d.open(); d.write(editor.getValue()); d.close();
         }
 
         function closePreview() { document.getElementById('preview-overlay').style.display = 'none'; }
@@ -320,18 +283,20 @@
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModals() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
         function showT(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
-        function toggleTheme() {
-            const cur = editor.getOption('theme');
-            editor.setOption('theme', cur === 'material-ocean' ? 'default' : 'material-ocean');
-            showT("Theme Switched!");
-        }
+        function toggleTheme() { const cur = editor.getOption('theme'); editor.setOption('theme', cur === 'material-ocean' ? 'default' : 'material-ocean'); }
         function delTab(i, e) { e.stopPropagation(); if(files.length > 1) { files.splice(i, 1); activeIdx = 0; loadTabs(); } }
 
-        // Service Worker for Offline
+        // --- ENHANCED SERVICE WORKER FOR PWA INSTALLATION ---
         if ('serviceWorker' in navigator) {
-            const sw = `self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));`;
-            const b = new Blob([sw], {type: 'text/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(b));
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE = 'riki-pwa-final';
+                    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'index.html']))));
+                    self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+                `;
+                const b = new Blob([swCode], {type: 'application/javascript'});
+                navigator.serviceWorker.register(URL.createObjectURL(b)).then(() => console.log('SW Registered'));
+            });
         }
     </script>
 </body>
