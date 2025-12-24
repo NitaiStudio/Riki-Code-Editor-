@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#020617">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Riki Code Editor | Nitai Studio</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href='data:application/json,{"name":"Riki Code Editor","short_name":"Riki","description":"Write • Edit • Build by Nitai Studio","start_url":".","display":"standalone","background_color":"#020617","theme_color":"#020617","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1005/1005141.png","sizes":"512x512","type":"image/png"}]}'>
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- CodeMirror Assets (Essential for Professional Editor) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/matchesonscrollbar.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/comment/comment.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #020617;
+            --bg-surface: #0f172a;
+            --bg-elevated: #1e293b;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #22d3ee;
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --font-ui: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-deep); color: var(--text-main);
+            font-family: var(--font-ui); overflow: hidden;
+        }
+
+        /* --- SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; inset: 0; z-index: 10000;
+            background: radial-gradient(circle at center, #0f172a, #020617);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .splash-logo {
+            width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 30px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px var(--primary-glow); animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+        /* --- APP STRUCTURE --- */
+        #app-shell {
+            display: flex; flex-direction: column; height: 100vh;
+            padding-top: var(--safe-top); opacity: 0; transition: opacity 0.5s ease;
+        }
+
+        header { padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; background: var(--bg-deep); }
+        .brand h2 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+        .brand span { font-size: 0.7rem; color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        .top-actions { display: flex; gap: 10px; }
+        .circle-btn {
+            width: 44px; height: 44px; border-radius: 14px; background: var(--bg-surface);
+            border: 1px solid rgba(255,255,255,0.08); color: white;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        /* --- TAB SYSTEM --- */
+        .tabs-container {
+            display: flex; padding: 8px 16px 0; gap: 8px; background: var(--bg-deep);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tabs-container::-webkit-scrollbar { display: none; }
+        .tab {
+            padding: 10px 18px; background: var(--bg-surface); border-radius: 14px 14px 0 0;
+            font-size: 0.8rem; color: var(--text-dim); display: flex; align-items: center; gap: 10px;
+            white-space: nowrap; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); border-bottom: none;
+        }
+        .tab.active { background: var(--bg-elevated); color: white; border-top: 2.5px solid var(--primary); }
+
+        /* --- DEVELOPER TOOLBAR --- */
+        .dev-toolbar {
+            background: var(--bg-surface); border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; gap: 6px; padding: 8px 12px; overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .dev-toolbar::-webkit-scrollbar { display: none; }
+        .tool-chip {
+            padding: 8px 14px; background: var(--bg-elevated); border: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-main); border-radius: 10px; font-size: 0.75rem; font-family: var(--font-code);
+            white-space: nowrap; display: flex; align-items: center; gap: 5px;
+        }
+        .tool-chip.accent { color: var(--accent); font-weight: bold; }
+
+        /* --- EDITOR AREA --- */
+        #editor-frame { flex: 1; position: relative; background: #0f172a; overflow: hidden; }
+        .CodeMirror { height: 100%; font-family: var(--font-code); font-size: 15px; line-height: 1.6; }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            background: var(--bg-surface);
+            padding: 10px 10px calc(12px + var(--safe-bottom));
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.08); position: relative; z-index: 100;
+        }
+        .nav-link {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 4px; color: var(--text-dim); text-decoration: none; flex: 1;
+        }
+        .nav-link.active { color: var(--primary); }
+        .nav-link span { font-size: 0.65rem; font-weight: 600; }
+
+        .run-btn-container {
+            position: relative; top: -25px;
+        }
+        .run-fab {
+            width: 60px; height: 60px; border-radius: 20px; background: var(--primary);
+            color: white; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px var(--primary-glow); border: none;
+        }
+
+        /* --- MODALS & OVERLAYS --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(15px); z-index: 9000; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-body {
+            background: var(--bg-surface); width: 100%; max-width: 480px;
+            border-radius: var(--radius-xl); padding: 28px; border: 1px solid rgba(255,255,255,0.1);
+            max-height: 85vh; overflow-y: auto;
+        }
+        .modal-body h3 { margin-top: 0; font-size: 1.4rem; }
+        .policy-content { color: var(--text-dim); font-size: 0.85rem; line-height: 1.7; }
+
+        /* --- PREVIEW SCREEN --- */
+        #live-preview {
+            position: fixed; inset: 0; background: white; z-index: 9500;
+            display: none; flex-direction: column;
+        }
+        #preview-header {
+            background: #1e293b; color: white; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        #preview-iframe { flex: 1; border: none; width: 100%; height: 100%; }
+
+        #toast-msg {
+            position: fixed; bottom: 120px; left: 50%; transform: translateX(-50%);
+            background: var(--primary); color: white; padding: 12px 24px;
+            border-radius: 40px; font-size: 0.85rem; z-index: 9999; display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <div class="splash-logo"><i data-lucide="code-2" size="48" color="white"></i></div>
+        <h1 style="margin: 25px 0 5px; font-weight: 800; letter-spacing: -1px;">Riki Code Editor</h1>
+        <p style="color: var(--text-dim); letter-spacing: 4px; font-size: 0.75rem; text-transform: uppercase;">Write • Edit • Build</p>
+        <div style="position: absolute; bottom: 40px; text-align: center; font-size: 0.8rem; color: var(--text-dim);">
+            By Nitai Studio<br>Made in India 🇮🇳
+        </div>
+    </div>
+
+    <!-- App Shell -->
+    <div id="app-shell">
+        <header>
+            <div class="brand">
+                <h2>Riki Editor</h2>
+                <span>Nitai Studio</span>
+            </div>
+            <div class="top-actions">
+                <button class="circle-btn" onclick="newFile()" title="New File"><i data-lucide="file-plus"></i></button>
+                <button class="circle-btn" onclick="triggerOpen()" title="Open File"><i data-lucide="folder-open"></i></button>
+                <button class="circle-btn" onclick="downloadCurrentFile()" title="Save File"><i data-lucide="save"></i></button>
+            </div>
+        </header>
+
+        <div class="tabs-container" id="tabs-list"></div>
+
+        <!-- Pro Tool Bar -->
+        <div class="dev-toolbar">
+            <button class="tool-chip" onclick="editor.undo()"><i data-lucide="undo" size="14"></i> Undo</button>
+            <button class="tool-chip" onclick="editor.redo()"><i data-lucide="redo" size="14"></i> Redo</button>
+            <button class="tool-chip" onclick="editor.execCommand('find')"><i data-lucide="search" size="14"></i> Find</button>
+            <button class="tool-chip accent" onclick="insertSymbol(' { ')">{ }</button>
+            <button class="tool-chip accent" onclick="insertSymbol(' ( ')">( )</button>
+            <button class="tool-chip accent" onclick="insertSymbol(' < ')">< ></button>
+            <button class="tool-chip accent" onclick="insertSymbol(' ; ')">;</button>
+            <button class="tool-chip accent" onclick="insertSymbol(' = ')">=</button>
+            <button class="tool-chip accent" onclick="insertSymbol(' \" ')">" "</button>
+            <button class="tool-chip" onclick="autoFormat()"><i data-lucide="code-xml" size="14"></i> Format</button>
+        </div>
+
+        <div id="editor-frame"></div>
+
+        <nav class="bottom-nav">
+            <div class="nav-link active" onclick="closeAllModals()">
+                <i data-lucide="code"></i><span>Editor</span>
+            </div>
+            <div class="nav-link" onclick="openModal('support-modal')">
+                <i data-lucide="help-circle"></i><span>Support</span>
+            </div>
+            <div class="run-btn-container">
+                <button class="run-fab" onclick="runLivePreview()">
+                    <i data-lucide="play" fill="white"></i>
+                </button>
+            </div>
+            <div class="nav-link" onclick="openModal('privacy-modal')">
+                <i data-lucide="shield-check"></i><span>Privacy</span>
+            </div>
+            <div class="nav-link" onclick="toggleEditorTheme()">
+                <i data-lucide="moon" id="theme-btn-icon"></i><span>Theme</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="privacy-modal">
+        <div class="modal-body">
+            <h3>Privacy Policy</h3>
+            <div class="policy-content">
+                <p><strong>Last Updated: 2025</strong></p>
+                <p>Riki Code Editor by Nitai Studio is committed to your privacy. This application functions entirely offline.</p>
+                <ul>
+                    <li><strong>No Data Collection:</strong> We do not collect, store, or share your code or personal information.</li>
+                    <li><strong>Local Storage:</strong> Your files are saved locally on your device's browser cache to ensure your work is safe.</li>
+                    <li><strong>Permissions:</strong> We only ask for storage permissions to allow you to save and open your code files.</li>
+                </ul>
+                <p>By using Riki Editor, you agree that your data stays on your device and is never uploaded to any server.</p>
+            </div>
+            <button class="tool-chip" style="width:100%; margin-top:20px; padding:15px; justify-content:center" onclick="closeAllModals()">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="support-modal">
+        <div class="modal-body">
+            <h3>Developer Support</h3>
+            <p style="color:var(--text-dim)">Riki Code Editor is a project by Nitai Studio.</p>
+            
+            <div style="background:var(--bg-elevated); padding:20px; border-radius:15px; margin:20px 0;">
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom:15px">
+                    <i data-lucide="mail" color="#6366f1"></i>
+                    <div>
+                        <div style="font-weight:700">Email Support</div>
+                        <div style="font-size:0.8rem; color:var(--text-dim)">nitai.grp00@gmail.com</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:15px">
+                    <i data-lucide="globe" color="#22d3ee"></i>
+                    <div>
+                        <div style="font-weight:700">Official Website</div>
+                        <div style="font-size:0.8rem; color:var(--text-dim)">www.nitaistudio.in</div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align:center; font-size:0.75rem; color:var(--text-dim)">
+                © 2025 Nitai Studio. All rights reserved.<br>Made with ❤️ in India
+            </p>
+            <button class="tool-chip" style="width:100%; margin-top:10px; padding:15px; justify-content:center" onclick="closeAllModals()">Back to Editor</button>
+        </div>
+    </div>
+
+    <!-- Preview Container -->
+    <div id="live-preview">
+        <div id="preview-header">
+            <span style="display:flex; align-items:center; gap:8px"><i data-lucide="eye" size="18"></i> Live Build Preview</span>
+            <i data-lucide="x-circle" style="cursor:pointer" onclick="closePreview()"></i>
+        </div>
+        <iframe id="preview-iframe"></iframe>
+    </div>
+
+    <div id="toast-msg">Success!</div>
+    <input type="file" id="file-picker" style="display:none" onchange="loadFile(event)">
+
+    <script>
+        let editor;
+        let files = JSON.parse(localStorage.getItem('riki_pro_files')) || [
+            { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { background: #020617; color: #6366f1; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }\n    h1 { border: 2px solid #6366f1; padding: 20px; border-radius: 20px; text-shadow: 0 0 10px rgba(99,102,241,0.5); }\n  </style>\n</head>\n<body>\n  <h1>Riki Editor: Write • Edit • Build</h1>\n</body>\n</html>' }
+        ];
+        let activeFileIdx = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            // Initialize Editor
+            editor = CodeMirror(document.getElementById('editor-frame'), {
+                lineNumbers: true,
+                theme: 'material-ocean',
+                mode: 'htmlmixed',
+                autoCloseBrackets: true,
+                tabSize: 4,
+                indentUnit: 4,
+                lineWrapping: true,
+                styleActiveLine: true,
+                scrollbarStyle: "native"
+            });
+
+            refreshTabs();
+
+            // Auto-save logic
+            editor.on('change', () => {
+                files[activeFileIdx].content = editor.getValue();
+                localStorage.setItem('riki_pro_files', JSON.stringify(files));
+            });
+
+            // Hide Splash
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.transform = 'translateY(-100%)';
+                document.getElementById('app-shell').style.opacity = '1';
+            }, 2000);
+        });
+
+        function refreshTabs() {
+            const list = document.getElementById('tabs-list');
+            list.innerHTML = '';
+            files.forEach((file, i) => {
+                const el = document.createElement('div');
+                el.className = `tab ${i === activeFileIdx ? 'active' : ''}`;
+                el.innerHTML = `<span>${file.name}</span> <i data-lucide="x" size="12" onclick="closeTab(${i}, event)"></i>`;
+                el.onclick = () => { activeFileIdx = i; refreshTabs(); };
+                list.appendChild(el);
+            });
+            lucide.createIcons();
+            editor.setValue(files[activeFileIdx].content);
+            detectLanguage(files[activeFileIdx].name);
+        }
+
+        function detectLanguage(name) {
+            const ext = name.split('.').pop();
+            const modes = { 'html': 'htmlmixed', 'js': 'javascript', 'css': 'css', 'json': 'application/json' };
+            editor.setOption('mode', modes[ext] || 'text/plain');
+        }
+
+        function insertSymbol(sym) {
+            const doc = editor.getDoc();
+            const cursor = doc.getCursor();
+            doc.replaceRange(sym, cursor);
+            editor.focus();
+        }
+
+        function autoFormat() {
+            const total = editor.lineCount();
+            for (let i = 0; i < total; i++) { editor.indentLine(i); }
+            showToast("Auto-Formatted");
+        }
+
+        function newFile() {
+            const name = prompt("Enter Filename (e.g. style.css):", "newfile.html");
+            if(name) {
+                files.push({ name, content: '' });
+                activeFileIdx = files.length - 1;
+                refreshTabs();
+            }
+        }
+
+        function triggerOpen() { document.getElementById('file-picker').click(); }
+
+        function loadFile(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                files.push({ name: file.name, content: ev.target.result });
+                activeFileIdx = files.length - 1;
+                refreshTabs();
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadCurrentFile() {
+            const blob = new Blob([editor.getValue()], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = files[activeFileIdx].name;
+            a.click();
+            showToast("File Saved!");
+        }
+
+        function runLivePreview() {
+            const panel = document.getElementById('live-preview');
+            const frame = document.getElementById('preview-iframe');
+            panel.style.display = 'flex';
+            const doc = frame.contentWindow.document;
+            doc.open();
+            doc.write(editor.getValue());
+            doc.close();
+        }
+
+        function closePreview() { document.getElementById('live-preview').style.display = 'none'; }
+
+        function toggleEditorTheme() {
+            const cur = editor.getOption('theme');
+            const next = cur === 'material-ocean' ? 'default' : 'material-ocean';
+            editor.setOption('theme', next);
+            document.getElementById('theme-btn-icon').setAttribute('data-lucide', next === 'default' ? 'sun' : 'moon');
+            lucide.createIcons();
+            showToast("Theme Changed");
+        }
+
+        function closeTab(i, e) {
+            e.stopPropagation();
+            if(files.length > 1) {
+                files.splice(i, 1);
+                activeFileIdx = 0;
+                refreshTabs();
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeAllModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+
+        function showToast(m) {
+            const t = document.getElementById('toast-msg');
+            t.innerText = m; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
+        // Service Worker for PWA Offline
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`;
+            const blob = new Blob([swCode], {type: 'text/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob));
+        }
+    </script>
+</body>
+</html>
