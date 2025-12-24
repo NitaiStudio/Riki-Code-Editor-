@@ -6,21 +6,24 @@
     
     <title>Riki Code Editor | Nitai Studio</title>
 
-    <!-- PWA & IOS META (CRITICAL) -->
+    <!-- SEO & PWA META -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#020617">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
     
-    <!-- Web Manifest for PWA Installation -->
-    <link rel="manifest" href='data:application/json,{"name":"Riki Code Editor","short_name":"Riki Editor","start_url":"index.html","display":"standalone","background_color":"#020617","theme_color":"#020617","icons":[{"src":"https://cdn-icons-png.flaticon.com/512/1005/1005141.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1005/1005141.png">
+
+    <!-- Web Manifest -->
+    <link rel="manifest" id="pwa-manifest">
 
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- CodeMirror (Colorful Syntax Highlighting Assets) -->
+    <!-- CodeMirror Assets (Colorful Syntax) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-ocean.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
@@ -61,11 +64,12 @@
         .btn-group { display: flex; gap: 8px; }
         .action-btn { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.08); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
+        /* TABS */
         .tab-bar { display: flex; padding: 4px 16px 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
-        .tab-bar::-webkit-scrollbar { display: none; }
         .tab { padding: 10px 16px; background: var(--bg-surface); border-radius: 12px 12px 0 0; font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.05); }
         .tab.active { background: var(--bg-elevated); color: white; border-top: 2.5px solid var(--primary); }
 
+        /* TOOLBAR */
         .toolbar { background: var(--bg-surface); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 8px; padding: 10px; overflow-x: auto; scrollbar-width: none; }
         .t-tool { padding: 8px 12px; background: var(--bg-elevated); border: none; color: var(--text-main); border-radius: 8px; font-size: 0.75rem; font-family: var(--font-code); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
 
@@ -89,6 +93,11 @@
         /* MODALS */
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 9000; display: none; align-items: center; justify-content: center; padding: 25px; }
         .modal { background: var(--bg-surface); width: 100%; max-width: 450px; border-radius: 28px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* INSTALL BANNER */
+        #install-banner { position: fixed; top: 20px; left: 20px; right: 20px; background: var(--primary); padding: 15px; border-radius: 15px; z-index: 11000; display: none; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideDown 0.5s ease; }
+        @keyframes slideDown { from { transform: translateY(-100px); } to { transform: translateY(0); } }
+
         #preview-overlay { position: fixed; inset: 0; background: white; z-index: 9500; display: none; flex-direction: column; }
         .p-head { background: #1e293b; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
         iframe { flex: 1; border: none; width: 100%; height: 100%; }
@@ -97,6 +106,15 @@
     </style>
 </head>
 <body>
+
+    <!-- Install App Banner -->
+    <div id="install-banner">
+        <div style="display:flex; align-items:center; gap:10px">
+            <i data-lucide="download-cloud" color="white"></i>
+            <span style="font-weight:600; font-size:0.9rem">Install Riki Editor?</span>
+        </div>
+        <button class="t-tool" onclick="installPWA()" style="background:white; color:var(--primary); font-weight:bold">INSTALL</button>
+    </div>
 
     <!-- Splash Screen -->
     <div id="splash">
@@ -145,7 +163,7 @@
         <div id="editor-view" style="height: 100%;"></div>
     </div>
 
-    <!-- Navigation -->
+    <!-- Bottom Nav -->
     <nav class="bottom-nav">
         <div class="nav-link active" onclick="closeModals()">
             <i data-lucide="terminal"></i><span>Editor</span>
@@ -184,7 +202,7 @@
     <div class="overlay" id="privacy-modal">
         <div class="modal">
             <h3>Privacy Policy</h3>
-            <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.6">Riki Editor is 100% Offline. Your code never leaves your device. We respect your privacy.</p>
+            <p style="font-size:0.85rem; color:var(--text-dim); line-height:1.6">Riki Editor is 100% Offline. Your code stays on your device.</p>
             <button class="t-tool" style="width:100%; justify-content:center; padding:12px; margin-top:15px" onclick="closeModals()">Close</button>
         </div>
     </div>
@@ -202,29 +220,57 @@
     <input type="file" id="f-pick" style="display:none" onchange="handleFile(event)">
 
     <script>
-        let editor;
-        let files = JSON.parse(localStorage.getItem('riki_final_v1')) || [
+        let editor, deferredPrompt;
+        let files = JSON.parse(localStorage.getItem('riki_fixed_v2')) || [
             { name: 'index.html', content: '<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    body { background: #020617; color: #6366f1; text-align: center; padding-top: 50px; font-family: sans-serif; }\n    h1 { font-size: 2.5rem; text-shadow: 0 0 15px rgba(99,102,241,0.5); }\n  </style>\n</head>\n<body>\n  <h1>Riki Editor Pro</h1>\n  <p>Write • Edit • Build</p>\n</body>\n</html>' }
         ];
         let activeIdx = 0;
 
+        // --- PWA LOGIC (CRITICAL) ---
+        const manifest = {
+            "name": "Riki Code Editor",
+            "short_name": "Riki Editor",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#020617",
+            "theme_color": "#020617",
+            "description": "Professional Mobile IDE by Nitai Studio",
+            "icons": [{
+                "src": "https://cdn-icons-png.flaticon.com/512/1005/1005141.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+            }]
+        };
+        document.getElementById('pwa-manifest').setAttribute('href', 'data:application/json;base64,' + btoa(JSON.stringify(manifest)));
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('install-banner').style.display = 'flex';
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('install-banner').style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            
-            // Editor Initialization
             editor = CodeMirror(document.getElementById('editor-view'), {
                 lineNumbers: true, theme: 'material-ocean', mode: 'htmlmixed',
                 autoCloseBrackets: true, tabSize: 4, lineWrapping: true
             });
-
             loadTabs();
-
             editor.on('change', () => {
                 files[activeIdx].content = editor.getValue();
-                localStorage.setItem('riki_final_v1', JSON.stringify(files));
+                localStorage.setItem('riki_fixed_v2', JSON.stringify(files));
             });
-
-            // Splash Removal
             setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 2500);
         });
 
@@ -286,16 +332,16 @@
         function toggleTheme() { const cur = editor.getOption('theme'); editor.setOption('theme', cur === 'material-ocean' ? 'default' : 'material-ocean'); }
         function delTab(i, e) { e.stopPropagation(); if(files.length > 1) { files.splice(i, 1); activeIdx = 0; loadTabs(); } }
 
-        // --- ENHANCED SERVICE WORKER FOR PWA INSTALLATION ---
+        // --- SERVICE WORKER REGISTRATION (IMPROVED) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 const swCode = `
-                    const CACHE = 'riki-pwa-final';
-                    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'index.html']))));
-                    self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
                 `;
                 const b = new Blob([swCode], {type: 'application/javascript'});
-                navigator.serviceWorker.register(URL.createObjectURL(b)).then(() => console.log('SW Registered'));
+                navigator.serviceWorker.register(URL.createObjectURL(b));
             });
         }
     </script>
